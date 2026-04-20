@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WUSU Humanizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700&display=swap");
+
+        :root {
+            --ink: #101828;
+            --navy: #132c69;
+            --royal: #244ea6;
+            --gold: #d29b23;
+            --mist: rgba(255, 255, 255, 0.72);
+            --panel: rgba(255, 255, 255, 0.88);
+            --line: rgba(148, 163, 184, 0.16);
+            --shadow: 0 28px 80px rgba(15, 23, 42, 0.10);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 15% 15%, rgba(36, 78, 166, 0.16), transparent 25%),
+                radial-gradient(circle at 84% 10%, rgba(210, 155, 35, 0.14), transparent 22%),
+                radial-gradient(circle at 72% 40%, rgba(43, 106, 197, 0.10), transparent 26%),
+                linear-gradient(180deg, #f8fbff 0%, #edf3ff 48%, #f8fbff 100%);
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+
+        .serif-title {
+            font-family: "Playfair Display", serif;
+        }
+
+        .glass-panel {
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow);
+        }
+
+        .hero-shell {
+            position: relative;
+            overflow: hidden;
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(247, 250, 255, 0.82)),
+                linear-gradient(115deg, rgba(19, 44, 105, 0.04), rgba(210, 155, 35, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.72);
+            box-shadow: 0 38px 120px rgba(19, 44, 105, 0.12);
+        }
+
+        .hero-shell::before,
+        .hero-shell::after {
+            content: "";
+            position: absolute;
+            inset: auto;
+            border-radius: 9999px;
+            pointer-events: none;
+            filter: blur(12px);
+        }
+
+        .hero-shell::before {
+            width: 22rem;
+            height: 22rem;
+            top: -6rem;
+            right: -4rem;
+            background: radial-gradient(circle, rgba(210, 155, 35, 0.18), transparent 62%);
+            animation: float 11s ease-in-out infinite;
+        }
+
+        .hero-shell::after {
+            width: 20rem;
+            height: 20rem;
+            left: -6rem;
+            bottom: -7rem;
+            background: radial-gradient(circle, rgba(36, 78, 166, 0.18), transparent 62%);
+            animation: float 13s ease-in-out infinite reverse;
+        }
+
+        .hero-grid {
+            background-image:
+                linear-gradient(rgba(36, 78, 166, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(36, 78, 166, 0.05) 1px, transparent 1px);
+            background-size: 48px 48px;
+            mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), transparent 84%);
+            opacity: 0.35;
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+        }
+
+        .topbar {
+            background: rgba(255, 255, 255, 0.68);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.78);
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            border: 1px solid rgba(19, 44, 105, 0.1);
+            background: rgba(255, 255, 255, 0.72);
+            padding: 0.45rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--navy);
+        }
+
+        .hero-chip {
+            border: 1px solid rgba(19, 44, 105, 0.12);
+            background: rgba(255, 255, 255, 0.76);
+            color: #31415e;
+            border-radius: 9999px;
+            padding: 0.7rem 1rem;
+            font-size: 0.76rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+            animation: bob 6s ease-in-out infinite;
+        }
+
+        .hero-chip:nth-child(2) {
+            animation-delay: 1.2s;
+        }
+
+        .hero-chip:nth-child(3) {
+            animation-delay: 2.2s;
+        }
+
+        .hero-chip:nth-child(4) {
+            animation-delay: 3.1s;
+        }
+
+        .tab-wrap {
+            background: rgba(217, 226, 245, 0.64);
+            border: 1px solid rgba(36, 78, 166, 0.08);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #ffffff 0%, #f6f9ff 100%);
+            color: var(--navy);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .chip-input:checked + span {
+            background: linear-gradient(135deg, #ffffff 0%, #f6f9ff 100%);
+            color: var(--navy);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .btn-primary {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: linear-gradient(135deg, #18367d 0%, #2553b0 100%);
+            box-shadow: 0 18px 40px rgba(24, 54, 125, 0.28);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+        }
+
+        .btn-primary::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            transform: translateX(-120%);
+            background: linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.25) 45%, transparent 70%);
+            animation: sweep 3.8s linear infinite;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 22px 44px rgba(24, 54, 125, 0.36);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0) scale(0.985);
+        }
+
+        .utility-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(19, 44, 105, 0.12);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(245, 249, 255, 0.92));
+            padding: 0.72rem 1rem;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--navy);
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+        }
+
+        .utility-btn:hover {
+            transform: translateY(-2px);
+            border-color: rgba(36, 78, 166, 0.24);
+            box-shadow: 0 18px 32px rgba(15, 23, 42, 0.12);
+            background: linear-gradient(135deg, #ffffff, #f4f8ff);
+        }
+
+        .utility-btn:active {
+            transform: translateY(0) scale(0.985);
+        }
+
+        .utility-btn i {
+            font-size: 0.95rem;
+        }
+
+        .utility-btn-accent {
+            border-color: rgba(210, 155, 35, 0.2);
+            background: linear-gradient(135deg, rgba(255, 250, 235, 0.98), rgba(255, 255, 255, 0.94));
+            color: #9a6700;
+        }
+
+        .clear-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            background: rgba(255, 255, 255, 0.96);
+            padding: 0.72rem 1rem;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #475569;
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+        }
+
+        .clear-btn:hover {
+            transform: translateY(-2px);
+            color: #b91c1c;
+            border-color: rgba(248, 113, 113, 0.4);
+            box-shadow: 0 18px 32px rgba(15, 23, 42, 0.12);
+        }
+
+        .editor-shell {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.86);
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(250, 252, 255, 0.82));
+            box-shadow: var(--shadow);
+        }
+
+        .editor-shell::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(36, 78, 166, 0.04), transparent 35%, rgba(210, 155, 35, 0.05));
+            pointer-events: none;
+        }
+
+        .detector-panel {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.78);
+            background: linear-gradient(145deg, rgba(17, 36, 84, 0.96), rgba(33, 75, 158, 0.92));
+            color: white;
+            box-shadow: 0 32px 90px rgba(18, 43, 104, 0.30);
+        }
+
+        .detector-panel::before {
+            content: "";
+            position: absolute;
+            inset: auto -3rem -5rem auto;
+            width: 14rem;
+            height: 14rem;
+            border-radius: 9999px;
+            background: radial-gradient(circle, rgba(210, 155, 35, 0.28), transparent 66%);
+            pointer-events: none;
+        }
+
+        .detector-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.95rem;
+            border-radius: 1.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.08));
+            padding: 1rem;
+            box-shadow: 0 18px 30px rgba(9, 24, 61, 0.14);
+            transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .detector-card:hover {
+            transform: translateY(-4px);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.12));
+            border-color: rgba(255, 255, 255, 0.28);
+            box-shadow: 0 24px 38px rgba(9, 24, 61, 0.2);
+        }
+
+        .detector-card-head {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .detector-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 10px 22px rgba(8, 25, 66, 0.16);
+            flex-shrink: 0;
+        }
+
+        .detector-logo img {
+            width: 1.7rem;
+            height: 1.7rem;
+            object-fit: contain;
+        }
+
+        .detector-meta {
+            min-width: 0;
+        }
+
+        .detector-card span {
+            display: block;
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+
+        .detector-card small {
+            display: block;
+            margin-top: 0.15rem;
+            color: rgba(255, 255, 255, 0.76);
+            font-size: 0.78rem;
+            line-height: 1.45;
+        }
+
+        .detector-cta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            width: max-content;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 0.62rem 0.95rem;
+            color: var(--navy);
+            font-size: 0.68rem;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            box-shadow: 0 14px 26px rgba(8, 25, 66, 0.14);
+        }
+
+        .promo-strip {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.8rem;
+            border: 1px solid rgba(19, 44, 105, 0.08);
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(244, 248, 255, 0.88));
+            box-shadow: 0 22px 60px rgba(15, 23, 42, 0.08);
+        }
+
+        .promo-strip::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 90% 10%, rgba(210, 155, 35, 0.16), transparent 22%),
+                radial-gradient(circle at 8% 92%, rgba(36, 78, 166, 0.12), transparent 24%);
+            pointer-events: none;
+        }
+
+        .source-link {
+            display: block;
+            padding: 0.95rem 1rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(255, 255, 255, 0.82);
+            transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .source-link:hover {
+            transform: translateY(-2px);
+            border-color: rgba(36, 78, 166, 0.22);
+            box-shadow: 0 14px 26px rgba(15, 23, 42, 0.07);
+        }
+
+        .loader {
+            width: 28px;
+            height: 28px;
+            border-radius: 9999px;
+            border: 3px solid rgba(24, 54, 125, 0.14);
+            border-top-color: var(--royal);
+            animation: spin 1s linear infinite;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.34);
+            border-radius: 999px;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 1.5rem;
+            transform: translate(-50%, 110px);
+            transition: transform 0.28s ease;
+            z-index: 60;
+            width: calc(100% - 2rem);
+            max-width: 420px;
+        }
+
+        .toast.show {
+            transform: translate(-50%, 0);
+        }
+
+        .reveal {
+            animation: rise 0.82s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+        }
+
+        .reveal-delay {
+            animation: rise 1.02s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate3d(0, 0, 0); }
+            50% { transform: translate3d(0, 16px, 0); }
+        }
+
+        @keyframes bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @keyframes sweep {
+            0% { transform: translateX(-140%); }
+            100% { transform: translateX(140%); }
+        }
+
+        @keyframes rise {
+            0% {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            textarea {
+                font-size: 16px !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+    <nav class="sticky top-0 z-40 px-4 py-4 md:py-5">
+        <div class="topbar mx-auto max-w-7xl rounded-[1.6rem] px-4 py-3 sm:px-5">
+            <div class="flex items-center justify-between gap-4">
+                <div class="flex min-w-0 items-center gap-3 sm:gap-4">
+                    <img
+                        src="https://upsa.edu.gh/wp-content/uploads/2023/03/upsa-logo-new.png"
+                        alt="UPSA logo"
+                        class="h-10 w-auto shrink-0 sm:h-12"
+                    >
+                    <div class="hidden h-10 w-px bg-slate-200 sm:block"></div>
+                    <div class="min-w-0">
+                        <div class="text-[11px] font-extrabold uppercase tracking-[0.3em] text-slate-400">WUSU Suite</div>
+                        <h1 class="truncate text-xl font-black tracking-tight text-blue-950 sm:text-2xl">WUSU <span class="text-amber-500">HUMANIZER</span></h1>
+                    </div>
+                </div>
+                <div class="hidden text-right md:block">
+                    <div class="text-sm font-semibold text-slate-700">Polish the draft. Check the tone.</div>
+                    <div class="text-xs uppercase tracking-[0.2em] text-slate-400">Project-ready presentation</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="mx-auto max-w-7xl px-4 py-4 md:py-8">
+        <section class="hero-shell reveal mb-8 rounded-[2.4rem] px-5 py-7 sm:px-8 sm:py-9">
+            <div class="hero-grid"></div>
+            <div class="relative grid gap-8 xl:grid-cols-[1.1fr_0.9fr] xl:items-start">
+                <div class="pt-1">
+                    <span class="brand-badge mb-5">
+                        <i class="fa-solid fa-pen-ruler text-amber-500"></i>
+                        Draft Studio
+                    </span>
+                    <h2 id="main-heading" class="serif-title mb-4 max-w-4xl text-4xl leading-[0.95] text-slate-950 sm:text-5xl xl:text-6xl">Make Your Draft Sound More Like You</h2>
+                    <p id="main-subheading" class="max-w-3xl text-base leading-8 text-slate-600 sm:text-lg">
+                        Reshape bulky notes and stiff paragraphs into cleaner, more natural project prose.
+                    </p>
+                    <p class="mt-4 max-w-3xl text-sm leading-7 text-slate-500 sm:text-base">
+                        Polish your project draft, tighten the flow, and open the same popular AI-check pages students usually use before submission.
+                    </p>
+
+                    <div class="mt-6 flex flex-wrap gap-3">
+                        <span class="hero-chip">Cleaner flow</span>
+                        <span class="hero-chip">Sharper structure</span>
+                        <span class="hero-chip">Stronger delivery</span>
+                        <span class="hero-chip">Project-ready feel</span>
+                    </div>
+
+                    <div class="tab-wrap mt-8 flex max-w-md rounded-2xl p-1.5">
+                        <button data-mode="humanize" id="tab-humanize" class="tab-btn active flex-1 rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-[0.22em] text-slate-500 transition-all">Humanize</button>
+                        <button data-mode="summary" id="tab-summary" class="tab-btn flex-1 rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-[0.22em] text-slate-500 transition-all">Summary</button>
+                        <button data-mode="research" id="tab-research" class="tab-btn flex-1 rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-[0.22em] text-slate-500 transition-all">Research</button>
+                    </div>
+                </div>
+
+                <aside class="detector-panel reveal-delay rounded-[2rem] p-5 sm:p-6">
+                    <div class="relative">
+                        <div class="mb-1 text-xs font-black uppercase tracking-[0.3em] text-white/60">Popular AI Checkers</div>
+                        <h3 class="max-w-md text-2xl font-black tracking-tight text-white">Quick links students actually open to cross-check a draft</h3>
+                        <p class="mt-3 max-w-lg text-sm leading-7 text-white/78">
+                            Open a checker in a new tab, test your wording, then come back and keep editing. Treat results as signals, not guarantees.
+                        </p>
+
+                        <div class="mt-6 grid gap-3 sm:grid-cols-2">
+                            <a class="detector-card" href="https://helpcenter.turnitin.com/hc/en-us/articles/31880737970701-How-can-I-access-the-AI-Writing-Detection-feature" target="_blank" rel="noreferrer">
+                                <div class="detector-card-head">
+                                    <div class="detector-logo">
+                                        <img src="https://www.google.com/s2/favicons?sz=128&domain_url=https://www.turnitin.com" alt="" loading="lazy">
+                                    </div>
+                                    <div class="detector-meta">
+                                        <span>Turnitin</span>
+                                        <small>Institutional access and product guidance</small>
+                                    </div>
+                                </div>
+                                <div class="detector-cta">Open Checker <i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                            </a>
+                            <a class="detector-card" href="https://gptzero.app/detector" target="_blank" rel="noreferrer">
+                                <div class="detector-card-head">
+                                    <div class="detector-logo">
+                                        <img src="https://www.google.com/s2/favicons?sz=128&domain_url=https://gptzero.app" alt="" loading="lazy">
+                                    </div>
+                                    <div class="detector-meta">
+                                        <span>GPTZero</span>
+                                        <small>Public checker page</small>
+                                    </div>
+                                </div>
+                                <div class="detector-cta">Open Checker <i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                            </a>
+                            <a class="detector-card" href="https://copyleaks.com/ai-content-detector" target="_blank" rel="noreferrer">
+                                <div class="detector-card-head">
+                                    <div class="detector-logo">
+                                        <img src="https://www.google.com/s2/favicons?sz=128&domain_url=https://copyleaks.com" alt="" loading="lazy">
+                                    </div>
+                                    <div class="detector-meta">
+                                        <span>Copyleaks</span>
+                                        <small>AI content detector</small>
+                                    </div>
+                                </div>
+                                <div class="detector-cta">Open Checker <i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                            </a>
+                            <a class="detector-card" href="https://quillbot.com/ai-content-detector" target="_blank" rel="noreferrer">
+                                <div class="detector-card-head">
+                                    <div class="detector-logo">
+                                        <img src="https://www.google.com/s2/favicons?sz=128&domain_url=https://quillbot.com" alt="" loading="lazy">
+                                    </div>
+                                    <div class="detector-meta">
+                                        <span>QuillBot</span>
+                                        <small>AI detector and explainers</small>
+                                    </div>
+                                </div>
+                                <div class="detector-cta">Open Checker <i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                            </a>
+                            <a class="detector-card" href="https://www.scribbr.com/ai-detector/" target="_blank" rel="noreferrer">
+                                <div class="detector-card-head">
+                                    <div class="detector-logo">
+                                        <img src="https://www.google.com/s2/favicons?sz=128&domain_url=https://www.scribbr.com" alt="" loading="lazy">
+                                    </div>
+                                    <div class="detector-meta">
+                                        <span>Scribbr</span>
+                                        <small>Academic-focused AI detector</small>
+                                    </div>
+                                </div>
+                                <div class="detector-cta">Open Checker <i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                            </a>
+                            <a class="detector-card" href="https://zerogpt.cc/" target="_blank" rel="noreferrer">
+                                <div class="detector-card-head">
+                                    <div class="detector-logo">
+                                        <img src="https://www.google.com/s2/favicons?sz=128&domain_url=https://zerogpt.cc" alt="" loading="lazy">
+                                    </div>
+                                    <div class="detector-meta">
+                                        <span>ZeroGPT</span>
+                                        <small>Public checker students commonly test with</small>
+                                    </div>
+                                </div>
+                                <div class="detector-cta">Open Checker <i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                            </a>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <section class="grid gap-6 lg:grid-cols-2 lg:gap-8">
+            <div class="flex flex-col">
+                <div class="mb-3 flex items-center justify-between gap-3 px-1">
+                    <label id="input-label" class="text-sm font-bold uppercase tracking-[0.2em] text-slate-600">
+                        <i class="fa-regular fa-file-lines mr-2 text-blue-900"></i>
+                        Source Text
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <button id="sampleBtn" class="utility-btn utility-btn-accent">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>Load Sample</span>
+                        </button>
+                        <span id="wordCountInput" class="rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-slate-500 shadow-sm">0 words</span>
+                    </div>
+                </div>
+
+                <div class="editor-shell">
+                    <textarea
+                        id="inputText"
+                        class="custom-scrollbar relative h-[360px] w-full resize-none bg-transparent px-5 py-6 text-base leading-8 text-slate-700 outline-none md:h-[520px] md:px-7"
+                        placeholder="Paste your text here."
+                    ></textarea>
+
+                    <div class="absolute bottom-4 right-4 flex items-center gap-2">
+                        <button id="clearBtn" class="clear-btn" aria-label="Clear input">
+                            <i class="fa-regular fa-trash-can"></i>
+                            <span>Clear</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col">
+                <div class="mb-3 flex items-center justify-between gap-3 px-1">
+                    <label class="text-sm font-bold uppercase tracking-[0.2em] text-slate-600">
+                        <i class="fa-solid fa-sparkles mr-2 text-amber-500"></i>
+                        Result
+                    </label>
+                    <div class="flex items-center gap-2">
+                        <span id="wordCountOutput" class="rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-slate-500 shadow-sm">0 words</span>
+                        <button id="copyBtn" class="utility-btn hidden">
+                            <i class="fa-regular fa-copy"></i>
+                            <span>Copy Result</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="editor-shell min-h-[360px] md:min-h-[520px]">
+                    <div id="loadingOverlay" class="absolute inset-0 z-20 hidden flex-col items-center justify-center gap-3 bg-white/88 backdrop-blur-sm">
+                        <div class="loader"></div>
+                        <div id="loading-text" class="text-sm font-bold uppercase tracking-[0.28em] text-blue-950">Polishing draft</div>
+                        <div class="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Smoothing flow and tightening structure</div>
+                    </div>
+
+                    <div id="outputText" class="custom-scrollbar h-[360px] overflow-y-auto whitespace-pre-wrap px-5 py-6 text-base leading-8 text-slate-700 md:h-[520px] md:px-7">
+                        <span class="text-slate-400">Your processed result appears here.</span>
+                    </div>
+                </div>
+
+                <div id="sourcesContainer" class="mt-4 hidden rounded-[1.5rem] border border-slate-200/80 bg-white/78 p-4 shadow-sm">
+                    <div class="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-slate-500">Reference Links</div>
+                    <div id="sourcesList" class="grid gap-3"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mt-10">
+            <div class="glass-panel rounded-[1.85rem] p-4 sm:p-5">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div id="toneControls" class="flex flex-wrap items-center gap-2 rounded-full bg-slate-100/80 p-1.5">
+                        <label class="cursor-pointer">
+                            <input class="chip-input sr-only" type="radio" name="tone" value="academic" checked>
+                            <span class="block rounded-full px-4 py-2 text-sm font-semibold text-slate-500 transition-all">Academic</span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input class="chip-input sr-only" type="radio" name="tone" value="natural">
+                            <span class="block rounded-full px-4 py-2 text-sm font-semibold text-slate-500 transition-all">Natural</span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input class="chip-input sr-only" type="radio" name="tone" value="reflective">
+                            <span class="block rounded-full px-4 py-2 text-sm font-semibold text-slate-500 transition-all">Reflective</span>
+                        </label>
+                    </div>
+
+                    <button id="processBtn" class="btn-primary inline-flex items-center justify-center gap-3 rounded-full px-7 py-4 text-sm font-bold uppercase tracking-[0.2em] text-white sm:text-base">
+                        <i id="action-icon" class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
+                        <span id="action-text">Polish Draft</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="promo-strip mt-5 px-5 py-5 sm:px-7 sm:py-6">
+                <div class="relative flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                        <div class="text-xs font-black uppercase tracking-[0.28em] text-blue-900">Presentation Angle</div>
+                        <h3 class="mt-2 text-2xl font-black tracking-tight text-slate-900">Polish your draft. Check it. Send it.</h3>
+                        <p class="mt-2 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
+                            Built for students who want cleaner structure, smoother wording, and a sharper final read before submission.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="brand-badge"><i class="fa-solid fa-bolt"></i> Fast edits</span>
+                        <span class="brand-badge"><i class="fa-solid fa-feather"></i> Smoother tone</span>
+                        <span class="brand-badge"><i class="fa-solid fa-link"></i> Checker shortcuts</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="px-4 pb-4 pt-2">
+        <div class="mx-auto max-w-7xl text-center">
+            <a
+                href="https://kennedyabubakar.com"
+                target="_blank"
+                rel="noreferrer"
+                class="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 transition hover:text-blue-900"
+            >
+                Developed by Kennedy Abubakar
+            </a>
+        </div>
+    </footer>
+
+    <div id="toast" class="toast rounded-2xl border border-slate-700 bg-slate-950 p-4 text-white shadow-2xl">
+        <div class="flex items-center gap-3">
+            <div id="toastIcon" class="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div id="toastMessage" class="text-sm font-semibold">Action complete.</div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
