@@ -138,6 +138,315 @@ const TONE_LIBRARY = {
     }
 };
 
+// ===== HUMANIZATION ENHANCEMENT LAYER =====
+
+function randPick(items) {
+    return items[Math.floor(Math.random() * items.length)];
+}
+
+// Common AI multi-word phrases → more natural alternatives (longer phrases first)
+const AI_PHRASE_MAP = [
+    ["it is important to note that", ["notably,", "worth noting,", "keep in mind that"]],
+    ["it is worth noting that", ["notably,", "keep in mind that", "worth noting,"]],
+    ["it is essential to note that", ["notably,", "worth noting,"]],
+    ["it is crucial to note that", ["notably,", "one thing to note is that"]],
+    ["it is important to understand that", ["keep in mind that", "remember that", "the key is that"]],
+    ["it is important to remember that", ["keep in mind that", "remember that"]],
+    ["it is worth mentioning that", ["worth mentioning,", "also notable,", "notably,"]],
+    ["in today's rapidly evolving world", ["these days", "today", "in the modern world"]],
+    ["in today's fast-paced world", ["these days", "today", "in today's world"]],
+    ["in today's ever-changing world", ["these days", "today", "in today's world"]],
+    ["in today's dynamic world", ["these days", "today"]],
+    ["in today's world", ["these days", "today", "nowadays"]],
+    ["at the end of the day,", ["ultimately,", "in the end,", "when all is said and done,"]],
+    ["at the end of the day", ["ultimately", "in the end", "when all is said and done"]],
+    ["in conclusion,", ["all in all,", "to wrap up,", "putting this all together,"]],
+    ["in conclusion", ["all in all", "to wrap up", "putting this together"]],
+    ["in summary,", ["in short,", "briefly,", "to put it simply,"]],
+    ["in summary", ["in short", "briefly", "to put it simply"]],
+    ["to summarize,", ["in short,", "briefly,"]],
+    ["to summarize", ["in short", "briefly"]],
+    ["it should be noted that", ["notably,", "worth noting,", "keep in mind that"]],
+    ["it should be noted,", ["notably,", "worth noting,"]],
+    ["it can be noted that", ["notably,", "worth noting,"]],
+    ["it is evident that", ["clearly,", "as you can see,", "it's clear that"]],
+    ["it is clear that", ["clearly,", "as we can see,"]],
+    ["it can be seen that", ["clearly,", "as we can see,"]],
+    ["it has been shown that", ["research shows that", "studies suggest that", "evidence indicates that"]],
+    ["it has been demonstrated that", ["research shows that", "studies have shown that"]],
+    ["this can be attributed to", ["this is likely because", "this comes down to", "this stems from"]],
+    ["this is due to the fact that", ["this is because", "this comes down to"]],
+    ["due to the fact that", ["because", "since"]],
+    ["in order to", ["to"]],
+    ["for the purpose of", ["for", "to"]],
+    ["with regard to", ["regarding", "about", "on"]],
+    ["with regards to", ["regarding", "about", "on"]],
+    ["as previously mentioned", ["as noted above", "as mentioned"]],
+    ["as mentioned above", ["as noted", "as mentioned earlier"]],
+    ["as discussed above", ["as noted", "as covered above"]],
+    ["first and foremost,", ["first,", "most importantly,", "above all,"]],
+    ["first and foremost", ["first", "most importantly", "above all"]],
+    ["last but not least,", ["finally,", "and importantly,"]],
+    ["last but not least", ["finally", "and importantly"]],
+    ["needless to say,", ["of course,", "naturally,", "clearly,"]],
+    ["needless to say", ["of course", "naturally", "clearly"]],
+    ["it goes without saying that", ["of course,", "clearly,", "naturally,"]],
+    ["going forward,", ["in the future,", "from here,"]],
+    ["going forward", ["in the future", "from here"]],
+    ["moving forward,", ["in the future,", "going ahead,"]],
+    ["moving forward", ["in the future", "going ahead"]],
+    ["a plethora of", ["many", "a lot of", "a wide range of"]],
+    ["a myriad of", ["many", "numerous", "a wide range of"]],
+    ["a multitude of", ["many", "a lot of", "numerous"]],
+    ["in the realm of", ["in", "within"]],
+    ["in the field of", ["in", "within"]],
+    ["in the area of", ["in", "within"]],
+    ["by and large,", ["generally,", "overall,", "mostly,"]],
+    ["by and large", ["generally", "overall", "mostly"]],
+    ["plays a crucial role in", ["matters a lot to", "is key to", "shapes"]],
+    ["play a crucial role in", ["matter a lot to", "are key to", "shape"]],
+    ["plays a key role in", ["matters to", "is central to", "shapes"]],
+    ["play a key role in", ["matter to", "are central to", "shape"]],
+    ["plays a vital role in", ["matters greatly to", "is critical to"]],
+    ["play a vital role in", ["matter greatly to", "are critical to"]],
+    ["plays a significant role in", ["matters to", "contributes to", "has an impact on"]],
+    ["play a significant role in", ["matter to", "contribute to", "have an impact on"]],
+    ["plays a pivotal role in", ["is central to", "matters greatly to"]],
+    ["play a pivotal role in", ["are central to", "matter greatly to"]],
+    ["leverage the power of", ["use", "take advantage of", "draw on"]],
+    ["harness the power of", ["use the power of", "take advantage of"]],
+    ["state-of-the-art", ["modern", "current", "advanced"]],
+    ["cutting-edge", ["modern", "advanced", "leading"]],
+    ["ground-breaking", ["innovative", "novel", "new"]],
+];
+
+// Single AI words → more natural alternatives
+const AI_WORD_MAP = new Map([
+    ["utilize", ["use"]],
+    ["utilizes", ["uses"]],
+    ["utilizing", ["using"]],
+    ["utilized", ["used"]],
+    ["leverage", ["use", "draw on"]],
+    ["leverages", ["uses", "draws on"]],
+    ["leveraging", ["using", "drawing on"]],
+    ["leveraged", ["used", "drew on"]],
+    ["facilitate", ["help with", "support"]],
+    ["facilitates", ["helps with", "supports"]],
+    ["facilitating", ["helping with", "supporting"]],
+    ["facilitated", ["helped with", "supported"]],
+    ["demonstrate", ["show", "reveal"]],
+    ["demonstrates", ["shows", "reveals"]],
+    ["demonstrated", ["showed", "revealed"]],
+    ["demonstrating", ["showing", "revealing"]],
+    ["substantially", ["considerably", "meaningfully"]],
+    ["pivotal", ["key", "central"]],
+    ["paramount", ["key", "central"]],
+    ["comprehensive", ["thorough", "complete"]],
+    ["holistic", ["overall", "broad"]],
+    ["optimal", ["best", "ideal"]],
+    ["optimally", ["best", "most effectively"]],
+    ["robust", ["strong", "solid"]],
+    ["seamlessly", ["smoothly", "easily"]],
+    ["seamless", ["smooth", "easy"]],
+    ["furthermore", ["also", "beyond that"]],
+    ["moreover", ["also", "what's more"]],
+    ["additionally", ["also", "on top of that"]],
+    ["subsequently", ["then", "later"]],
+    ["consequently", ["so", "as a result"]],
+    ["nevertheless", ["still", "even so"]],
+    ["nonetheless", ["still", "even so"]],
+    ["aforementioned", ["the mentioned", "the above"]],
+    ["paradigm", ["model", "approach"]],
+    ["endeavor", ["effort", "attempt"]],
+    ["endeavors", ["efforts", "attempts"]],
+    ["endeavour", ["effort", "attempt"]],
+    ["endeavours", ["efforts", "attempts"]],
+    ["delve", ["dig", "look"]],
+    ["delves", ["digs", "looks"]],
+    ["delved", ["dug", "looked"]],
+    ["delving", ["digging", "looking"]],
+    ["unpack", ["break down", "explore"]],
+    ["unpacks", ["breaks down", "explores"]],
+    ["unpacking", ["breaking down", "exploring"]],
+    ["navigate", ["handle", "work through"]],
+    ["navigates", ["handles", "works through"]],
+    ["empower", ["help", "enable"]],
+    ["empowers", ["helps", "enables"]],
+    ["empowering", ["helping", "enabling"]],
+    ["empowered", ["helped", "enabled"]],
+    ["foster", ["build", "support"]],
+    ["fosters", ["builds", "supports"]],
+    ["fostering", ["building", "supporting"]],
+    ["fostered", ["built", "supported"]],
+    ["underscore", ["highlight", "show"]],
+    ["underscores", ["highlights", "shows"]],
+    ["underscoring", ["highlighting", "showing"]],
+    ["underscored", ["highlighted", "showed"]],
+    ["encompass", ["include", "cover"]],
+    ["encompasses", ["includes", "covers"]],
+    ["encompassing", ["including", "covering"]],
+    ["encompassed", ["included", "covered"]],
+    ["commence", ["start", "begin"]],
+    ["commences", ["starts", "begins"]],
+    ["commenced", ["started", "began"]],
+    ["ascertain", ["find out", "figure out"]],
+    ["elucidate", ["explain", "clarify"]],
+    ["delineate", ["outline", "describe"]],
+    ["implement", ["use", "put in place"]],
+    ["implements", ["uses", "puts in place"]],
+    ["implementing", ["using", "putting in place"]],
+    ["implemented", ["used", "put in place"]],
+    ["synergy", ["combination", "cooperation"]],
+    ["proactive", ["forward-looking", "ahead-thinking"]],
+    ["proactively", ["ahead of time", "early on"]],
+]);
+
+// Tone-specific natural sentence openers injected for variety
+const VARIED_OPENERS = {
+    academic: [
+        (s) => `Notably, ${decapitalizeSentence(s)}`,
+        (s) => `Worth noting is that ${decapitalizeSentence(s).replace(/[.!?]+$/, "")}.`,
+        (s) => `The evidence suggests that ${decapitalizeSentence(s).replace(/[.!?]+$/, "")}.`,
+        (s) => `On closer examination, ${decapitalizeSentence(s)}`,
+        (s) => `In practice, ${decapitalizeSentence(s)}`,
+        (s) => `As the research shows, ${decapitalizeSentence(s)}`,
+    ],
+    natural: [
+        (s) => `What's interesting is that ${decapitalizeSentence(s).replace(/[.!?]+$/, "")}.`,
+        (s) => `That said, ${decapitalizeSentence(s)}`,
+        (s) => `As it turns out, ${decapitalizeSentence(s)}`,
+        (s) => `The truth is, ${decapitalizeSentence(s)}`,
+        (s) => `Put simply, ${decapitalizeSentence(s)}`,
+        (s) => `In real terms, ${decapitalizeSentence(s)}`,
+        (s) => `Here's the thing: ${decapitalizeSentence(s)}`,
+    ],
+    reflective: [
+        (s) => `When you look closely, ${decapitalizeSentence(s)}`,
+        (s) => `In many ways, ${decapitalizeSentence(s)}`,
+        (s) => `From this perspective, ${decapitalizeSentence(s)}`,
+        (s) => `Stepping back, ${decapitalizeSentence(s)}`,
+        (s) => `What really stands out is that ${decapitalizeSentence(s).replace(/[.!?]+$/, "")}.`,
+        (s) => `Looking at this more closely, ${decapitalizeSentence(s)}`,
+    ],
+};
+
+function applyPhraseSubstitutions(text) {
+    let result = text;
+    for (const [phrase, options] of AI_PHRASE_MAP) {
+        const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const regex = new RegExp(escaped, "gi");
+        if (!regex.test(result)) {
+            continue;
+        }
+        const replacement = randPick(options);
+        result = result.replace(new RegExp(escaped, "gi"), (match) => {
+            if (/^[A-Z]/.test(match) && replacement.length > 0) {
+                return replacement.charAt(0).toUpperCase() + replacement.slice(1);
+            }
+            return replacement;
+        });
+    }
+    return result;
+}
+
+function applyWordSubstitutions(text) {
+    let result = text;
+    for (const [word, options] of AI_WORD_MAP) {
+        const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const regex = new RegExp(`\\b${escaped}\\b`, "gi");
+        if (!regex.test(result)) {
+            continue;
+        }
+        result = result.replace(new RegExp(`\\b${escaped}\\b`, "gi"), (match) => {
+            const replacement = randPick(options);
+            if (/^[A-Z]/.test(match)) {
+                return replacement.charAt(0).toUpperCase() + replacement.slice(1);
+            }
+            return replacement;
+        });
+    }
+    return result;
+}
+
+// Remove a redundant secondary transition right after an opening transition
+// e.g. "Beyond that, worth noting, X" → "Beyond that, X"
+// e.g. "What's more, as you can see, X" → "What's more, X"
+function cleanupTransitionStacking(text) {
+    const bare = "(?:notably,?|worth noting,?|clearly,?|also,?|and,?|in short,?|of course,?|naturally,?|as you can see,?|as we can see,?|it's clear that|it is clear that|all in all,?|in fact,?|actually,?)";
+    const re = new RegExp(`^([A-Za-z'][^,]{1,45},\\s+)${bare}\\s+`, "i");
+    return text.replace(re, "$1");
+}
+
+// Check if a sentence already starts with a transitional opener (including substitution results)
+const OPENER_PREFIX_RE = /^(notably|worth noting|keep in mind|remember that|the key is|that said|as it turns out|the truth is|put simply|in practice|on closer examination|as the research shows|what's interesting|what really stands out|when you look closely|in many ways|from this perspective|stepping back|looking at this|beyond that|what's more|on top of that|all in all|in short|briefly|clearly|as we can see|as you can see|the evidence suggests|in real terms|here's the thing|these days|today,|overall,|generally,|mostly,|ultimately|research shows|studies suggest|evidence indicates|worth mentioning|also,|and,|so,|still,|even so,|then,|later,|because,|since,|but,|yet,|or,|first,|finally,|above all,|most importantly,|of course,|naturally,|in the future,|from here,|going ahead,|regarding,|about,|on,|in the end)\b/i;
+
+function humanizeSentenceText(text) {
+    let result = applyPhraseSubstitutions(text);
+    result = applyWordSubstitutions(result);
+    result = cleanupTransitionStacking(result);
+    return result;
+}
+
+function addVariedOpeners(sentences, tone) {
+    if (sentences.length < 2) {
+        return sentences;
+    }
+    const openers = VARIED_OPENERS[tone] || VARIED_OPENERS.academic;
+    const result = [...sentences];
+    let lastOpenerAt = -2;
+
+    for (let i = 1; i < result.length; i++) {
+        if (i - lastOpenerAt < 2) {
+            continue;
+        }
+        if (result[i].length < 35) {
+            continue;
+        }
+        // Skip if sentence already starts with a transition (from substitutions)
+        if (OPENER_PREFIX_RE.test(result[i])) {
+            continue;
+        }
+        if (Math.random() > 0.22) {
+            continue;
+        }
+        const opener = randPick(openers);
+        const varied = opener(result[i]);
+        if (varied && varied.length >= result[i].length * 0.6) {
+            result[i] = cleanupSentence(varied);
+            lastOpenerAt = i;
+        }
+    }
+
+    return result;
+}
+
+function splitLongSentences(sentences) {
+    const result = [];
+    for (const sentence of sentences) {
+        if (sentence.length < 185) {
+            result.push(sentence);
+            continue;
+        }
+        // Split at semicolons
+        const semiMatch = sentence.match(/^(.{50,}?);\s+(.{25,})$/);
+        if (semiMatch) {
+            result.push(cleanupSentence(semiMatch[1]));
+            const part2 = semiMatch[2];
+            result.push(cleanupSentence(part2.charAt(0).toUpperCase() + part2.slice(1)));
+            continue;
+        }
+        // Split at ", which/that " — rewrite second half as standalone sentence
+        const relMatch = sentence.match(/^(.{70,}?),\s+(which|that)\s+(.{30,})$/i);
+        if (relMatch) {
+            result.push(cleanupSentence(relMatch[1]));
+            result.push(cleanupSentence(`This ${relMatch[3]}`));
+            continue;
+        }
+        result.push(sentence);
+    }
+    return result;
+}
+
 const state = {
     currentMode: "humanize",
     isProcessing: false,
@@ -262,13 +571,22 @@ function humanizeText(text, tone = "academic") {
     const library = TONE_LIBRARY[tone] || TONE_LIBRARY.academic;
 
     if (!sections.length) {
-        return humanizeLooseParagraph(text, library);
+        return humanizeLooseParagraph(text, library, tone);
+    }
+
+    // Plain prose: single overview section with only paragraph blocks — use the paragraph humanizer
+    const isPlainProse = sections.length === 1
+        && /^overview$/i.test(sections[0].title || "")
+        && sections[0].blocks.every((block) => block.type === "paragraph");
+
+    if (isPlainProse) {
+        return humanizeLooseParagraph(text, library, tone);
     }
 
     const paragraphs = [];
 
     sections.forEach((section, sectionIndex) => {
-        const sentences = composeSectionSentences(section, library, sectionIndex);
+        let sentences = composeSectionSentences(section, library, sectionIndex);
         const heading = sanitizeHeading(section.title);
         const meaningfulTitle = heading && !/^overview$/i.test(heading);
 
@@ -283,6 +601,12 @@ function humanizeText(text, tone = "academic") {
         if (meaningfulTitle && /^key takeaway$/i.test(heading)) {
             sentences.unshift("Taken together, the main takeaway is straightforward.");
         }
+
+        // Apply AI phrase/word substitutions and add natural variety
+        sentences = sentences.map((s) => cleanupSentence(humanizeSentenceText(s)));
+        sentences = splitLongSentences(sentences);
+        sentences = addVariedOpeners(sentences, tone);
+        sentences = sentences.map((s) => cleanupSentence(cleanupTransitionStacking(s)));
 
         const grouped = chunkArray(sentences, meaningfulTitle ? 3 : 4);
         grouped.forEach((group) => paragraphs.push(group.join(" ")));
@@ -566,16 +890,32 @@ function parseSections(text) {
     return sections.length ? sections : [{ title: "Overview", blocks: [{ type: "paragraph", text }] }];
 }
 
-function humanizeLooseParagraph(text, library) {
+function humanizeLooseParagraph(text, library, tone = "academic") {
     const sentences = sentenceTokenize(flattenTextForAnalysis(text));
     if (!sentences.length) {
         return "";
     }
 
-    return chunkArray(
-        sentences.map((sentence) => cleanupSentence(sentence)),
-        3
-    ).map((group) => group.join(" ")).join("\n\n");
+    // Apply AI phrase/word substitutions to every sentence
+    let processed = sentences.map((s) => cleanupSentence(humanizeSentenceText(s)));
+
+    // Break up overly long sentences
+    processed = splitLongSentences(processed);
+
+    // Inject varied natural openers to ~1 in 5 sentences
+    processed = addVariedOpeners(processed, tone);
+    processed = processed.map((s) => cleanupSentence(cleanupTransitionStacking(s)));
+
+    // Variable paragraph sizes (2-4 sentences) for a more natural feel
+    const paras = [];
+    let i = 0;
+    while (i < processed.length) {
+        const remaining = processed.length - i;
+        const size = remaining <= 2 ? remaining : 2 + Math.floor(Math.random() * 3);
+        paras.push(processed.slice(i, Math.min(i + size, processed.length)).join(" "));
+        i += size;
+    }
+    return paras.join("\n\n");
 }
 
 function blockToNarrativeSentence(block, library, index) {
@@ -1409,7 +1749,8 @@ function toLowerPhrase(text) {
 }
 
 function pick(items, index) {
-    return items[index % items.length];
+    // Use random selection for genuine variety on each run
+    return items[Math.floor(Math.random() * items.length)];
 }
 
 function chunkArray(items, size) {
